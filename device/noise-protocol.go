@@ -8,6 +8,7 @@ package device
 import (
 	"errors"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/crypto/poly1305"
 
+	"golang.zx2c4.com/wireguard/corplink"
 	"golang.zx2c4.com/wireguard/tai64n"
 )
 
@@ -171,7 +173,13 @@ func (h *Handshake) mixKey(data []byte) {
  */
 func init() {
 	InitialChainKey = blake2s.Sum256([]byte(NoiseConstruction))
-	mixHash(&InitialHash, &InitialChainKey, []byte(WGIdentifier))
+	protocolVersion, _ := os.LookupEnv(corplink.EnvKeyProtocolVersion)
+	switch protocolVersion {
+	case "v2":
+		mixHash(&InitialHash, &InitialChainKey, []byte(corplink.WGIdentifier))
+	default:
+		mixHash(&InitialHash, &InitialChainKey, []byte(WGIdentifier))
+	}
 }
 
 func (device *Device) CreateMessageInitiation(peer *Peer) (*MessageInitiation, error) {
