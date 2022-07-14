@@ -253,6 +253,11 @@ func main() {
 	signal.Notify(term, syscall.SIGTERM)
 	signal.Notify(term, os.Interrupt)
 
+	_, _, e := syscall.Syscall(syscall.SYS_PRCTL, syscall.PR_SET_PDEATHSIG, uintptr(syscall.SIGTERM), 0)
+	if e != 0 {
+		logger.Errorf("prctl PR_SET_PDEATHSIG fail: %s", e.Error())
+	}
+
 	select {
 	case <-term:
 	case <-errs:
