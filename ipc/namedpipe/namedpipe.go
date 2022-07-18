@@ -235,6 +235,18 @@ type pipeListener struct {
 	doneCh      chan int
 }
 
+// NewPipeListener create a net.Listener from handle
+func NewPipeListener(handle windows.Handle, path string) net.Listener {
+	return &pipeListener{
+		firstHandle: handle,
+		path:        path,
+		config:      ListenConfig{},
+		acceptCh:    make(chan chan acceptResponse),
+		closeCh:     make(chan int),
+		doneCh:      make(chan int),
+	}
+}
+
 func makeServerPipeHandle(path string, sd *windows.SECURITY_DESCRIPTOR, c *ListenConfig, isFirstPipe bool) (windows.Handle, error) {
 	path16, err := windows.UTF16PtrFromString(path)
 	if err != nil {

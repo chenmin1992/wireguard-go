@@ -6,7 +6,10 @@
 package ipc
 
 import (
+	"fmt"
 	"net"
+	"os"
+	"path"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/ipc/namedpipe"
@@ -59,7 +62,34 @@ func init() {
 	}
 }
 
+func createUnixSock(path string) (windows.Handle, error) {
+	sockHandle, err := windows.Socket(windows.AF_UNIX, windows.SOCK_STREAM, 0)
+	if err != nil {
+		return 0, err
+	}
+	unixSockAddr := &windows.SockaddrUnix{
+		Name: path,
+	}
+	err = windows.Bind(sockHandle, unixSockAddr)
+	if err != nil {
+		return 0, err
+	}
+
+	return sockHandle, err
+}
+
 func UAPIListen(name string) (net.Listener, error) {
+	tmpDir := os.TempDir()
+	sockName := fmt.Sprintf("%s.sock", name)
+	sockPath := path.Join(tmpDir, sockName)
+	sockHandle, err := createUnixSock(sockPath)
+	if err != nil {
+		return nil, err
+	}
+	return namedpipe.NewPipeListener(sockHandle, sockPath), nil
+}
+
+func oldUAPIListen(name string) (net.Listener, error) {
 	listener, err := (&namedpipe.ListenConfig{
 		SecurityDescriptor: UAPISecurityDescriptor,
 	}).Listen(`\\.\pipe\ProtectedPrefix\Administrators\WireGuard\` + name)
