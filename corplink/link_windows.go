@@ -13,12 +13,20 @@ import (
 var tunDev *tun.NativeTun
 var tunAddr *netip.Addr
 
+func tryLoadTun() {
+	if tunDev != nil {
+		return
+	}
+	tunDev = tun.CurrentTun
+}
+
 func SetInterfaceUp(_ string, _ bool) error {
 	// on windows, once the link is created, it is up
 	return nil
 }
 
 func SetInterfaceMTU(_ string, mtu int) error {
+	tryLoadTun()
 	luid := winipcfg.LUID(tunDev.LUID())
 	ipInterface, err := luid.IPInterface(windows.AF_INET)
 	if err != nil {
@@ -33,6 +41,7 @@ func SetInterfaceMTU(_ string, mtu int) error {
 }
 
 func SetInterfaceAddress(_, addr string) error {
+	tryLoadTun()
 	prefixAddr, err := netip.ParsePrefix(addr)
 	if err != nil {
 		return err
@@ -44,6 +53,7 @@ func SetInterfaceAddress(_, addr string) error {
 }
 
 func AddInterfaceRoute(_, network string) error {
+	tryLoadTun()
 	dst, err := netip.ParsePrefix(network)
 	if err != nil {
 		return err

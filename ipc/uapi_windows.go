@@ -25,6 +25,10 @@ func UAPIListen(name string) (net.Listener, error) {
 	tmpDir := os.TempDir()
 	sockName := fmt.Sprintf("%s.sock", name)
 	sockPath := path.Join(tmpDir, sockName)
+	// ensure sock file not exist
+	if err := os.RemoveAll(sockPath); err != nil {
+		return nil, err
+	}
 	addr, err := net.ResolveUnixAddr("unix", sockPath)
 	if err != nil {
 		return nil, err

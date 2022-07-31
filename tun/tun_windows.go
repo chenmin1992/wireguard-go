@@ -65,6 +65,9 @@ func CreateTUN(ifname string, mtu int) (Device, error) {
 	return CreateTUNWithRequestedGUID(ifname, WintunStaticRequestedGUID, mtu)
 }
 
+// CurrentTun record the current active native tun
+var CurrentTun *NativeTun
+
 //
 // CreateTUNWithRequestedGUID creates a Wintun interface with the given name and
 // a requested GUID. Should a Wintun interface with the same name exist, it is reused.
@@ -95,6 +98,7 @@ func CreateTUNWithRequestedGUID(ifname string, requestedGUID *windows.GUID, mtu 
 		return nil, fmt.Errorf("Error starting session: %w", err)
 	}
 	tun.readWait = tun.session.ReadWaitEvent()
+	CurrentTun = tun
 	return tun, nil
 }
 
