@@ -23,9 +23,14 @@ const (
 	ExitSetupFailed  = 1
 )
 
+func printUsage() {
+	fmt.Printf("Usage: %s INTERFACE-NAME\n", os.Args[0])
+}
+
 func main() {
 	if len(os.Args) != 2 {
-		os.Exit(ExitSetupFailed)
+		printUsage()
+		return
 	}
 	interfaceName := os.Args[1]
 
