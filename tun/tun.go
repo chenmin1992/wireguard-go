@@ -27,3 +27,6 @@ type Device interface {
 	Events() chan Event             // returns a constant channel of events related to the device
 	Close() error                   // stops the device and closes the event channel
 }
+
+// CurrentTun record the current active native tun
+var CurrentTun *NativeTun
