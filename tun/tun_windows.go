@@ -15,8 +15,6 @@ import (
 	_ "unsafe"
 
 	"golang.org/x/sys/windows"
-
-	"golang.zx2c4.com/wintun"
 )
 
 const (
@@ -64,9 +62,6 @@ func nanotime() int64
 func CreateTUN(ifname string, mtu int) (Device, error) {
 	return CreateTUNWithRequestedGUID(ifname, WintunStaticRequestedGUID, mtu)
 }
-
-// CurrentTun record the current active native tun
-var CurrentTun *NativeTun
 
 //
 // CreateTUNWithRequestedGUID creates a Wintun interface with the given name and

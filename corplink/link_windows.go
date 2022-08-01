@@ -6,19 +6,8 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
-
-var tunDev *tun.NativeTun
-var tunAddr *netip.Addr
-
-func tryLoadTun() {
-	if tunDev != nil {
-		return
-	}
-	tunDev = tun.CurrentTun
-}
 
 func SetInterfaceUp(_ string, _ bool) error {
 	// on windows, once the link is created, it is up
