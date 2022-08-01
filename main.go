@@ -16,6 +16,7 @@ import (
 	"syscall"
 
 	"golang.zx2c4.com/wireguard/conn"
+	"golang.zx2c4.com/wireguard/corplink"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/ipc"
 	"golang.zx2c4.com/wireguard/tun"
@@ -253,10 +254,7 @@ func main() {
 	signal.Notify(term, syscall.SIGTERM)
 	signal.Notify(term, os.Interrupt)
 
-	_, _, e := syscall.Syscall(syscall.SYS_PRCTL, syscall.PR_SET_PDEATHSIG, uintptr(syscall.SIGTERM), 0)
-	if e != 0 {
-		logger.Errorf("prctl PR_SET_PDEATHSIG fail: %s", e.Error())
-	}
+	corplink.HandleParentDeathSignal()
 
 	select {
 	case <-term:
